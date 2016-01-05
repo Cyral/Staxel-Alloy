@@ -1,3 +1,4 @@
 ﻿{
-  "StaxelAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\Staxel.dll"
+  "SourceAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\StaxelBackup.dll",
+  "TargetAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\Staxel.dll"
 }
