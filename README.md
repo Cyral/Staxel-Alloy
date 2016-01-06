@@ -12,6 +12,21 @@ Alloy doesn't need to use or distribute any code from Staxel. It instead patches
 
 The idea currently is to use the minimum amount of IL code injection possible. Everything should be handled by the mod loader/host and not directly through the Staxel assembly (as that is tricky).
 
+===
+
+**Patcher:**
+Injects a few IL intructions as well as a public static field (`ModLoader`) into `Staxel.dll`, and initializes the mod loader when the game starts.
+
+
+**Mod Loader:**
+When the game starts, an instance of the mod loader is created, so all code related to mod loading is done through this separate assembly.
+
+The mod loader also has a "mod host", which will serve as the communicator between the mods and Staxel.
+
+For events (such as OnBlockPlaced), IL will need to be injected (for example, into the block place method), which will invoke an event in the mod host, which mods can subscribe to. 
+
+For instructions (such as a mod wanting to add a chat message), we will need to do the opposite. Either by referencing Staxel (easier to code but adds a dependency), or using some reflection stuff to call Staxel methods from the mod host.
+
 #### Roadmap:
 
 When and if I have more time to work on this:
