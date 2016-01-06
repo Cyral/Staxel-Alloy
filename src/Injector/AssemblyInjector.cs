@@ -4,6 +4,7 @@ using System.Reflection;
 using Alloy.Loader;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using FieldAttributes = Mono.Cecil.FieldAttributes;
 
 namespace Alloy.Injector
 {
@@ -33,22 +34,25 @@ namespace Alloy.Injector
 
         public void InjectTest()
         {
-            //foreach (var m in Assembly.MainModule.Types.SelectMany(typeDef => typeDef.Methods).Where(x => x.FullName.Contains("GameContext")))
-            //   Console.WriteLine(CleanMethodName(m));
+            //foreach (var m in Assembly.MainModule.Types)
+            //  Console.WriteLine(m.FullName);
             //var writeLine = GetMethod(typeof(Console), "WriteLine", typeof(string));
             //var refMethod = GetMethod(typeof(ModLoader), "Test");
 
             var initializeMethod = GetAssemblyMethod("GameContext.Initialize");
+            var gameClass = GetAssemblyClass("GameContext");
 
             // Import and create instance of the mod loader.
-            // TODO: Make this a property instead of a local variable?
             var modLoaderCtor = Assembly.MainModule.Import(typeof(ModLoader).GetConstructors()[0]);
             var modLoader = Assembly.MainModule.Import(typeof (ModLoader));
-            initializeMethod.Body.Variables.Add(new VariableDefinition("ModLoader", modLoader));
 
+            // Create a public static field in GameContext to hold the mod loader/host.
+            var fieldDef = new FieldDefinition("ModLoader", FieldAttributes.Public | FieldAttributes.Static, modLoader);
+            gameClass.Fields.Add(fieldDef);
+
+            // Create the mod loader instance and store it as a field.
             AddInstruction(initializeMethod, Instruction.Create(OpCodes.Newobj, modLoaderCtor));
-            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stloc_0));
-  
+            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stsfld, fieldDef));
 
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, writeLine));
@@ -73,6 +77,12 @@ namespace Alloy.Injector
                     .FirstOrDefault(x => CleanMethodName(x).Equals(name));
         }
 
+        internal TypeDefinition GetAssemblyClass(string name)
+        {
+            return
+                Assembly.MainModule.Types.FirstOrDefault(x => CleanClassName(x).Equals(name));
+        }
+
         internal MethodReference GetMethod(Type rootType, string methodName, params Type[] argTypes)
         {
             return ImportMethod(DefineMethod(rootType, methodName, argTypes));
@@ -91,6 +101,14 @@ namespace Alloy.Injector
             var start = methodDefinition.FullName.IndexOf('.', methodDefinition.FullName.IndexOf(' '));
             var end = methodDefinition.FullName.IndexOf('(');
             return methodDefinition.FullName.Substring(start + 1, end - start - 1).Replace("::", ".");
+        }
+
+        private string CleanClassName(TypeDefinition typeDefinition)
+        {
+            var start = typeDefinition.FullName.IndexOf('.');
+            if (start < 0) // For stuff like <Module>
+                return typeDefinition.FullName;
+            return typeDefinition.FullName.Substring(start + 1);
         }
     }
 }
