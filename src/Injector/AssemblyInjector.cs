@@ -40,11 +40,14 @@ namespace Alloy.Injector
             //var refMethod = GetMethod(typeof(ModLoader), "Test");
 
             var initializeMethod = GetAssemblyMethod("GameContext.Initialize");
+            // Just a method that is called later (to test accessing the mod loader)
+            var laterMethod = GetAssemblyMethod("GameContext.ResourceInitializations");
             var gameClass = GetAssemblyClass("GameContext");
 
             // Import and create instance of the mod loader.
-            var modLoaderCtor = Assembly.MainModule.Import(typeof(ModLoader).GetConstructors()[0]);
             var modLoader = Assembly.MainModule.Import(typeof (ModLoader));
+            var modLoaderCtor = Assembly.MainModule.Import(typeof(ModLoader).GetConstructors()[0]);
+            var modLoaderTest = Assembly.MainModule.Import(typeof(ModLoader).GetMethod("Test"));
 
             // Create a public static field in GameContext to hold the mod loader/host.
             var fieldDef = new FieldDefinition("ModLoader", FieldAttributes.Public | FieldAttributes.Static, modLoader);
@@ -53,6 +56,11 @@ namespace Alloy.Injector
             // Create the mod loader instance and store it as a field.
             AddInstruction(initializeMethod, Instruction.Create(OpCodes.Newobj, modLoaderCtor));
             AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stsfld, fieldDef));
+
+            instrIndex = 0;
+
+            // Just a test to see how to call the mod loader from another function (which will be used for event hooks)
+            AddInstruction(laterMethod, Instruction.Create(OpCodes.Call, modLoaderTest));
 
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, writeLine));

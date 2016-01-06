@@ -4,6 +4,6 @@
   // References are copied to the Staxel bin directory
   "References": [
     "Alloy.Loader.dll",
-    "Alloy.API.dll",
+    "Alloy.API.dll"
   ]
 }
