@@ -48,8 +48,7 @@ namespace Alloy.Injector
 
             AddInstruction(initializeMethod, Instruction.Create(OpCodes.Newobj, modLoaderCtor));
             AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stloc_0));
-            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldloc_0));
-            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stloc_0));
+  
 
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, writeLine));
