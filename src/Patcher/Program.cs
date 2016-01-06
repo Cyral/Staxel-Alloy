@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Alloy.Injector;
@@ -16,6 +18,8 @@ namespace Alloy.Patcher
             var config = JObject.Parse(File.ReadAllText("config.json"));
             var source = Environment.ExpandEnvironmentVariables(config["SourceAssembly"].ToString());
             var target = Environment.ExpandEnvironmentVariables(config["TargetAssembly"].ToString());
+            var targetDir = Path.GetDirectoryName(target);
+            var refs = config["References"];
 
             if (File.Exists(source))
             {
@@ -24,6 +28,9 @@ namespace Alloy.Patcher
                 injector.Inject();
                 Console.WriteLine($"Exporting assembly to {target}.");
                 injector.Export();
+                Console.WriteLine("Copying references.");
+                foreach (var reference in refs)
+                    File.Copy(reference.ToString(), Path.Combine(targetDir, reference.ToString()), true);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Done.");
             }

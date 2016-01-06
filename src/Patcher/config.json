@@ -1,4 +1,9 @@
 ﻿{
   "SourceAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\StaxelBackup.dll",
-  "TargetAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\Staxel.dll"
+  "TargetAssembly": "%LocalAppData%\\Staxel.Launcher\\gamedata\\bin\\Staxel.dll",
+  // References are copied to the Staxel bin directory
+  "References": [
+    "Alloy.Loader.dll",
+    "Alloy.API.dll",
+  ]
 }

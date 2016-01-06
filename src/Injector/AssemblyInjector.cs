@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Alloy.Loader;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -11,6 +12,7 @@ namespace Alloy.Injector
         public string SourcePath { get; set; }
         public string TargetPath { get; set; }
         public AssemblyDefinition Assembly { get; set; }
+        private int instrIndex;
 
         public AssemblyInjector(string source, string target)
         {
@@ -33,12 +35,31 @@ namespace Alloy.Injector
         {
             //foreach (var m in Assembly.MainModule.Types.SelectMany(typeDef => typeDef.Methods).Where(x => x.FullName.Contains("GameContext")))
             //   Console.WriteLine(CleanMethodName(m));
+            //var writeLine = GetMethod(typeof(Console), "WriteLine", typeof(string));
+            //var refMethod = GetMethod(typeof(ModLoader), "Test");
 
-            var writeLine = GetMethod(typeof (Console), "WriteLine", typeof (string));
             var initializeMethod = GetAssemblyMethod("GameContext.Initialize");
 
-            initializeMethod.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
-            initializeMethod.Body.Instructions.Insert(1, Instruction.Create(OpCodes.Call, writeLine));
+            // Import and create instance of the mod loader.
+            // TODO: Make this a property instead of a local variable?
+            var modLoaderCtor = Assembly.MainModule.Import(typeof(ModLoader).GetConstructors()[0]);
+            var modLoader = Assembly.MainModule.Import(typeof (ModLoader));
+            initializeMethod.Body.Variables.Add(new VariableDefinition("ModLoader", modLoader));
+
+            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Newobj, modLoaderCtor));
+            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stloc_0));
+            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldloc_0));
+            AddInstruction(initializeMethod, Instruction.Create(OpCodes.Stloc_0));
+
+            //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
+            //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, writeLine));
+            //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, refMethod));
+        }
+
+        private void AddInstruction(MethodDefinition method, Instruction instruction)
+        {
+            method.Body.Instructions.Insert(instrIndex, instruction);
+            instrIndex++;
         }
 
         internal MethodInfo DefineMethod(Type rootType, string methodName, params Type[] argTypes)
