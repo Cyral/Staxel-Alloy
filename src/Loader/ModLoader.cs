@@ -5,6 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Alloy.API;
+using Plukit.Base;
+using Staxel;
+using Staxel.Logic;
+using Staxel.Tiles;
 
 namespace Alloy.Loader
 {
@@ -32,6 +36,11 @@ namespace Alloy.Loader
         public static void Test()
         {
             Console.WriteLine("Mod loader test.");
+        }
+
+        public static void PlaceTile(Entity entity, Vector3I location, Tile tile)
+        {
+            Console.WriteLine($"Tile placed! {location.X},{location.Y},{location.Z} (Kind: {tile.Configuration})");
         }
 
         private void LoadMods()
