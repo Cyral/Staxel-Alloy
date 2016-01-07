@@ -31,10 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Plukit.Base">
-      <HintPath>C:\Users\heath\AppData\Local\Staxel.Launcher\gamedata\bin\Plukit.Base.dll</HintPath>
+      <HintPath>%localappdata%\Staxel.Launcher\gamedata\bin\Plukit.Base.dll</HintPath>
     </Reference>
-    <Reference Include="Staxel">
-      <HintPath>C:\Users\heath\AppData\Local\Staxel.Launcher\gamedata\bin\Staxel.dll</HintPath>
+    <Reference Include="Staxel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>%localappdata%\Staxel.Launcher\gamedata\bin\Staxel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

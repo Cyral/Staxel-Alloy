@@ -40,12 +40,14 @@ namespace Alloy.Loader
 
         public static void PlaceTile(Entity entity, Vector3I location, Tile tile)
         {
-            Console.WriteLine($"Tile placed! {location.X},{location.Y},{location.Z} (Kind: {tile.Configuration})");
+            Console.WriteLine($"Tile placed! {location.X},{location.Y},{location.Z} ({tile.Configuration.Code})");
         }
 
         private void LoadMods()
         {
             // Get all directories in mods folder.
+            if (!Directory.Exists("mods"))
+                Directory.CreateDirectory("mods");
             var dirs = Directory.GetDirectories("mods");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Loading mods...\n");
