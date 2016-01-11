@@ -6,24 +6,27 @@ using System.Linq;
 using System.Reflection;
 using Alloy.API;
 using Plukit.Base;
-using Staxel;
 using Staxel.Data;
-using Staxel.Logic;
 using Staxel.Server;
-using Staxel.Tiles;
 
 namespace Alloy.Loader
 {
     public class ModLoader
     {
-        public List<Mod> Mods { get; }
+        /// <summary>
+        /// List of loaded mods.
+        /// </summary>
+        internal List<Mod> Mods { get; }
 
-        public ModHost Host { get; }
+        internal ModHost Host { get; private set; }
+
+        internal Core Core { get; private set; }
 
         public ModLoader()
         {
             Mods = new List<Mod>();
             Host = new ModHost();
+            Core = new Core(Host);
 
             WriteBreak();
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -35,54 +38,7 @@ namespace Alloy.Loader
             LoadMods();
         }
 
-        public static void PlaceTile(Entity entity, Vector3I location, Tile tile)
-        {
-            Console.WriteLine($"Tile placed! {location.X},{location.Y},{location.Z} ({tile.Configuration.Code})");
-        }
-
-        public static void SendChat(ClientServerConnection connection, string message)
-        {
-            var blob = BlobAllocator.Blob(true);
-            blob.SetString("response", message);
-            connection.SendPacket(new DataPacket(ServerClockNow(), DataPacketKind.ConsoleResponse, blob));
-            blob.Deallocate();
-        }
-
-        private static Timestep ServerClockNow()
-        {
-            return ServerMainLoop._clock.Now();
-        }
-
-        public static bool ServerNetwork(ClientServerConnection connection, DataPacket packet)
-        {
-            //Console.WriteLine($"Server Packet: {packet?.Kind} from {connection?.Credentials?.Username}");
-            if (packet != null)
-            {
-                var blob = packet.Blob;
-                var user = connection.Credentials;
-                switch (packet.Kind)
-                {
-                    case DataPacketKind.ConsoleMessage:
-                    {
-                        var message = blob.GetString("message");
-                        Console.WriteLine($"{user.Username}: {message}");
-                        if (message.Equals("ping", StringComparison.OrdinalIgnoreCase))
-                        {
-                            SendChat(connection, "PONG");
-                            return false;
-                        }
-                        break;
-                    }
-                }
-            }
-            return true;
-        }
-
-        public static void Test()
-        {
-            Console.WriteLine("Mod loader test.");
-        }
-
+     
         private void LoadMods()
         {
             // Get all directories in mods folder.
@@ -128,7 +84,9 @@ namespace Alloy.Loader
             WriteBreak();
         }
 
-        private void WriteBreak()
+   
+
+        private static void WriteBreak()
         {
             Console.WriteLine();
             Console.WriteLine(new string('-', Console.BufferWidth));

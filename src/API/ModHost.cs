@@ -2,6 +2,11 @@
 {
     public class ModHost
     {
-        // TODO: Add events/hooks and stuff for plugins to interact with
+        internal Communicator Communicator { get; private set; }
+
+        public ModHost()
+        {
+            Communicator = new Communicator();
+        }
     }
 }
