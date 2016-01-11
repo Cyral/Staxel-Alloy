@@ -3,6 +3,7 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Newtonsoft.Json.Linq;
 using Alloy.Injector;
 
@@ -33,14 +34,15 @@ namespace Alloy.Patcher
                     File.Copy(reference.ToString(), Path.Combine(targetDir, reference.ToString()), true);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Done.");
+                Thread.Sleep(1000);
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Assembly {source} not found.");
-            }
 
-            Console.ReadLine();
+                Console.ReadLine();
+            }
         }
     }
 }

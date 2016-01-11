@@ -29,7 +29,19 @@ namespace Alloy.Injector
 
         public void Inject()
         {
+            MakePublic();
             InjectTest();
+        }
+
+        private void MakePublic()
+        {
+            // Make all methods public so we have easier access to them in the API.
+            foreach (var type in Assembly.MainModule.Types)
+            {
+                if (type.HasMethods)
+                    foreach (var method in type.Methods.Where(m => !m.IsConstructor))
+                        method.IsPublic = true;
+            }
         }
 
         public void InjectTest()
@@ -40,6 +52,11 @@ namespace Alloy.Injector
             //var refMethod = GetMethod(typeof(ModLoader), "Test");
 
             var initializeMethod = GetAssemblyMethod("GameContext.Initialize");
+            var networkMethod = GetAssemblyMethod("Server.ServerMainLoop.ProcessPacket");
+            var clockField = GetAssemblyField("Server.ServerMainLoop._clock");
+            clockField.IsStatic = true;
+            clockField.IsPublic = true;
+         
             // Just a method that is called later (to test accessing the mod loader)
             var laterMethod = GetAssemblyMethod("GameContext.ResourceInitializations");
             var placeTileMethod = GetAssemblyMethod("Logic.Universe.PlaceTile");
@@ -50,6 +67,7 @@ namespace Alloy.Injector
             var modLoaderCtor = Assembly.MainModule.Import(typeof(ModLoader).GetConstructors()[0]);
             var modLoaderTest = Assembly.MainModule.Import(typeof(ModLoader).GetMethod("Test"));
             var modLoaderPlace = Assembly.MainModule.Import(typeof(ModLoader).GetMethod("PlaceTile"));
+            var modLoaderNetwork = Assembly.MainModule.Import(typeof(ModLoader).GetMethod("ServerNetwork"));
 
             // Create a public static field in GameContext to hold the mod loader/host.
             var fieldDef = new FieldDefinition("ModLoader", FieldAttributes.Public | FieldAttributes.Static, modLoader);
@@ -70,6 +88,13 @@ namespace Alloy.Injector
             AddInstruction(placeTileMethod, Instruction.Create(OpCodes.Ldarg_3));
             AddInstruction(placeTileMethod, Instruction.Create(OpCodes.Call, modLoaderPlace));
 
+            instrIndex = 0;
+            AddInstruction(networkMethod, Instruction.Create(OpCodes.Ldarg_1));
+            AddInstruction(networkMethod, Instruction.Create(OpCodes.Ldarg_2));
+            AddInstruction(networkMethod, Instruction.Create(OpCodes.Call, modLoaderNetwork));
+            // If the network method returns false, return from the method.
+            var returnInstruction = networkMethod.Body.Instructions[networkMethod.Body.Instructions.Count - 1];
+            AddInstruction(networkMethod, Instruction.Create(OpCodes.Brfalse, returnInstruction));
 
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Ldstr, "Testing Code Injection"));
             //AddInstruction(initializeMethod, Instruction.Create(OpCodes.Call, writeLine));
@@ -100,6 +125,13 @@ namespace Alloy.Injector
                 Assembly.MainModule.Types.FirstOrDefault(x => CleanClassName(x).Equals(name));
         }
 
+
+        internal FieldDefinition GetAssemblyField(string name)
+        {
+            return
+                Assembly.MainModule.Types.SelectMany(typeDef => typeDef.Fields).FirstOrDefault(x => CleanFieldName(x).Equals(name));
+        }
+
         internal MethodReference GetMethod(Type rootType, string methodName, params Type[] argTypes)
         {
             return ImportMethod(DefineMethod(rootType, methodName, argTypes));
@@ -126,6 +158,12 @@ namespace Alloy.Injector
             if (start < 0) // For stuff like <Module>
                 return typeDefinition.FullName;
             return typeDefinition.FullName.Substring(start + 1);
+        }
+
+        private string CleanFieldName(FieldDefinition fieldDefinition)
+        {
+            var start = fieldDefinition.FullName.IndexOf('.', fieldDefinition.FullName.IndexOf(' '));
+            return fieldDefinition.FullName.Substring(start + 1).Replace("::", ".");
         }
     }
 }
