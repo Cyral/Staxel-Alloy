@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using Alloy.API;
 using Alloy.API.Entities;
 using Plukit.Base;
@@ -18,10 +20,13 @@ namespace Alloy.Loader
 
         internal Dictionary<Player, ClientServerConnection> Connections { get; }
 
+        public static Core Instance { get; private set; }
+
         public Core(ModHost host)
         {
             Host = host;
             Communicator = Host.Communicator;
+            Instance = this;
 
             Connections = new Dictionary<Player, ClientServerConnection>();
 
@@ -41,8 +46,32 @@ namespace Alloy.Loader
             {
                 var blob = packet.Blob;
                 var user = connection.Credentials;
+                var sender = Instance.GetPlayer(connection);
+
+                switch (packet.Kind)
+                {
+                    case DataPacketKind.HelloServer:
+                        var player = new Player(user.Username, user.Uid);
+                        Instance.Connections.Add(player, connection);
+                        Instance.Host.Events.PlayerJoined.Invoke(new EventManager.PlayerJoinEventArgs(player));
+                        break;
+                    case DataPacketKind.Disconnect:
+                        Instance.Host.Events.PlayerQuit.Invoke(new EventManager.PlayerQuitEventArgs(sender));
+                        Instance.Connections.Remove(sender);
+                        break;
+                    case DataPacketKind.ConsoleMessage:
+                        if (Instance.Host.Events.Chat.Invoke(new EventManager.ChatEventArgs(sender,
+                                blob.GetString("message"))))
+                            return false;
+                        break;
+                }
             }
             return true;
+        }
+
+        private Player GetPlayer(ClientServerConnection connection)
+        {
+            return Connections.FirstOrDefault(c => c.Value == connection).Key;
         }
 
         private void SendPacket(Player player, DataPacketKind type, Blob blob)

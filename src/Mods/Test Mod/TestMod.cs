@@ -11,7 +11,30 @@ namespace TestMod
 
         public override void Load()
         {
-            Console.WriteLine("Test Mod: Hello, World!");
+            Host.Events.Chat.AddHandler(args =>
+            {
+                Console.WriteLine($"{args.Sender.Name}: {args.Message}");
+
+                if (args.Message.Equals("ping", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    args.Sender.SendMessage("Pong!");
+                    args.Cancel();
+                }
+            });
+
+            Host.Events.PlayerJoined.AddHandler(args =>
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{args.Player.Name} has joined.");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }, EventPriority.Final);
+
+            Host.Events.PlayerQuit.AddHandler(args =>
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{args.Player.Name} has quit.");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }, EventPriority.Final);
         }
 
         public override void Unload()

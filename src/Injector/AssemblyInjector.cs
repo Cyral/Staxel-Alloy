@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Alloy.Injector.Injectors;
-using Alloy.Loader;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
-using FieldAttributes = Mono.Cecil.FieldAttributes;
 
 namespace Alloy.Injector
 {
     public class AssemblyInjector
     {
-        private readonly string sourcePath;
-        private readonly string targetPath;
         private readonly AssemblyDefinition assembly;
         private readonly List<Injectors.Injector> injectors;
+        private readonly string sourcePath;
+        private readonly string targetPath;
 
         public AssemblyInjector(string source, string target)
         {

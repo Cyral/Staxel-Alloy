@@ -72,9 +72,17 @@ namespace Alloy.Loader
             Console.WriteLine("\nInitializing mods...\n");
             Console.ForegroundColor = ConsoleColor.Gray;
             // Call the load method on each mod so it can perform initialization logic.
-            foreach (var mod in Mods)
+            try
             {
-                mod.Load();
+                foreach (var mod in Mods)
+                {
+                    mod.Load();
+                }
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine("Error loading mod:");
+               Console.WriteLine(e.ToString());
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -83,8 +91,6 @@ namespace Alloy.Loader
             Console.ForegroundColor = ConsoleColor.Gray;
             WriteBreak();
         }
-
-   
 
         private static void WriteBreak()
         {
