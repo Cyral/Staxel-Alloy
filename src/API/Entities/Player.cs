@@ -15,5 +15,10 @@
         {
             Communicator.OnChat(this, message);
         }
+
+        public void Disconnect(string reason)
+        {
+            Communicator.OnDisconnect(this, reason);
+        }
     }
 }

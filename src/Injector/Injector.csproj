@@ -57,9 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInjector.cs" />
+    <Compile Include="Injectors\ConnectionInjector.cs" />
     <Compile Include="Injectors\CreateModLoaderInjector.cs" />
     <Compile Include="Injectors\Injector.cs" />
     <Compile Include="Injectors\ServerNetworkInjector.cs" />
+    <Compile Include="Injectors\UniverseInjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

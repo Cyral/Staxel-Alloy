@@ -16,7 +16,7 @@ namespace Alloy.Injector.Injectors
 
         public override void Inject()
         {
-            var initializeMethod = GetAssemblyMethod("GameContext.Initialize");
+            var initializeMethod = GetAssemblyMethod("ServerContext.Initialize");
             var gameClass = GetAssemblyClass("GameContext");
 
             var modLoader = Import(typeof (ModLoader));

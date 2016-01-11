@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Alloy.API;
 using Alloy.API.Entities;
 using Plukit.Base;
 using Staxel.Data;
+using Staxel.Logic;
 using Staxel.Server;
+using Staxel.Tiles;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Alloy.Loader
 {
@@ -36,10 +40,26 @@ namespace Alloy.Loader
                 blob.SetString("response", message);
                 SendPacket(player, DataPacketKind.ConsoleResponse, blob);
             };
+
+            Communicator.Disconnect += (player, reason) =>
+            {
+                // TODO: Make this better...
+                Connections[player]._connection.Close();
+            };
+        }
+
+        public static bool OnPlaceTile(Entity entity, Vector3I location, Tile tile)
+        {
+            if (Instance == null)
+                return true;
+            Console.WriteLine($"Tile placed at {location.X},{location.Y},{location.Z}.");
+            return false;
         }
 
         public static bool OnServerPacket(ClientServerConnection connection, DataPacket packet)
         {
+            if (Instance == null)
+                return true;
             //Console.WriteLine($"Server Packet: {packet?.Kind} from {connection?.Credentials?.Username}");
 
             if (packet != null)
@@ -53,7 +73,8 @@ namespace Alloy.Loader
                     case DataPacketKind.HelloServer:
                         var player = new Player(user.Username, user.Uid);
                         Instance.Connections.Add(player, connection);
-                        Instance.Host.Events.PlayerJoined.Invoke(new EventManager.PlayerJoinEventArgs(player));
+                        if (Instance.Host.Events.PlayerJoined.Invoke(new EventManager.PlayerJoinEventArgs(player)))
+                            return false;
                         break;
                     case DataPacketKind.Disconnect:
                         Instance.Host.Events.PlayerQuit.Invoke(new EventManager.PlayerQuitEventArgs(sender));

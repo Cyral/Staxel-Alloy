@@ -21,7 +21,9 @@ namespace Alloy.Injector
             injectors = new List<Injectors.Injector>
             {
                 new CreateModLoaderInjector(assembly),
+                new ConnectionInjector(assembly),
                 new ServerNetworkInjector(assembly),
+                new UniverseInjector(assembly),
             };
         }
 
@@ -44,11 +46,14 @@ namespace Alloy.Injector
         private void MakePublic()
         {
             // Make all methods public so we have easier access to them in the API.
-            foreach (
-                var method in
+            foreach (var method in
                     assembly.MainModule.Types.Where(type => type.HasMethods)
                         .SelectMany(type => type.Methods.Where(m => !m.IsConstructor)))
+            {
                 method.IsPublic = true;
+                method.IsPrivate = false;
+            }
+
         }
     }
 }

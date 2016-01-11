@@ -5,9 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Alloy.API;
-using Plukit.Base;
-using Staxel.Data;
-using Staxel.Server;
 
 namespace Alloy.Loader
 {
