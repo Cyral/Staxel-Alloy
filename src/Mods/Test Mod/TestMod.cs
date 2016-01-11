@@ -20,13 +20,6 @@ namespace TestMod
                     args.Sender.SendMessage("Pong!");
                     args.Cancel();
                 }
-
-                if (args.Message.Equals("kickme", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    args.Sender.SendMessage("Kicking...");
-                    args.Sender.Disconnect("You've been kicked!");
-                    args.Cancel();
-                }
             });
 
             Host.Events.PlayerJoined.AddHandler(args =>
