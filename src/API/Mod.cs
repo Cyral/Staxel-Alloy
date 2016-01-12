@@ -9,6 +9,8 @@
 
         public ModHost Host { get; set; }
 
+        public EventManager Events => Host.Events;
+
         public Mod(ModHost host)
         {
             Host = host;

@@ -52,8 +52,10 @@ namespace Alloy.Loader
         {
             if (Instance == null)
                 return true;
+            foreach (var kv in entity.Blob.KeyValueIteratable)
+            Console.WriteLine(kv.Key + ": " + kv.Value);
             Console.WriteLine($"Tile placed at {location.X},{location.Y},{location.Z}.");
-            return false;
+            return true;
         }
 
         public static bool OnServerPacket(ClientServerConnection connection, DataPacket packet)

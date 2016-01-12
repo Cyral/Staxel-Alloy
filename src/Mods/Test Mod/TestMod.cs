@@ -11,7 +11,7 @@ namespace TestMod
 
         public override void Load()
         {
-            Host.Events.Chat.AddHandler(args =>
+            Events.Chat.AddHandler(args =>
             {
                 Console.WriteLine($"{args.Sender.Name}: {args.Message}");
 
@@ -22,14 +22,14 @@ namespace TestMod
                 }
             });
 
-            Host.Events.PlayerJoined.AddHandler(args =>
+            Events.PlayerJoined.AddHandler(args =>
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"{args.Player.Name} has joined.");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }, EventPriority.Final);
 
-            Host.Events.PlayerQuit.AddHandler(args =>
+            Events.PlayerQuit.AddHandler(args =>
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{args.Player.Name} has quit.");
