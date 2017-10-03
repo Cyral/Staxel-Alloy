@@ -1,18 +1,18 @@
 # Alloy
-###[Staxel](http://playstaxel.com/) Modding API
+### [Staxel](http://playstaxel.com/) Modding API
 
 Alloy is an API for developing code-based Staxel mods and plugins.
 
-Currently nothing more than an experiement.
+Caution: **Currently nothing more than an experiement, probably won't work on the latest Staxel version as this hasn't been updated in a while.** I've been busy with other projects since I started this but maybe it will be useful for someone else!
 
-===
+---
 
 #### How does it work?
 Alloy doesn't need to use or distribute any code from Staxel. It instead patches `Staxel.dll` (the bulk of the game's code) on the user's machine to include the mod loader. When Staxel is initialized, the mod loader will load mods which can interact with the game via the injected code in the patched version of Staxel.
 
 The idea currently is to use the minimum amount of IL code injection possible. Everything should be handled by the mod loader/host and not directly through the Staxel assembly (as that is tricky).
 
-===
+---
 
 **Patcher:**
 Injects a few IL intructions as well as a public static field (`ModLoader`) into `Staxel.dll`, and initializes the mod loader when the game starts.
